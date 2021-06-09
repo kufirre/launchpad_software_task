@@ -1,0 +1,16 @@
+.idea
+fast-colorthief
+__pycache__
+chromedriver.exe
+ColorThief.PNG
+geckodriver.log
+get_next_link.py
+list.txt
+main2.py
+main1.py
+out.csv
+rough_notes
+test.py
+test_imgur.py
+token.py
+
