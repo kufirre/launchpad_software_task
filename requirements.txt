@@ -3,3 +3,4 @@ requests
 colorthief
 beautifulsoup4
 requests-html
+PyQt5
