@@ -1,15 +1,15 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+import os
+import io
+from urllib.request import urlopen
+import threading
+import pickle
 
+from PyQt5 import QtCore, QtGui, QtWidgets
 from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 from colorthief import ColorThief
-from urllib.request import urlopen
-import io
 import praw
-import os
-import pickle
 from create_token import create_token
-import threading
 
 
 # class to get the dominant color from a url
@@ -72,7 +72,10 @@ class ProcessLinks:
         self.color_bound = color_bound
 
         # dictionary for top url results
-        self.raw_json = {submission.url: submission.num_comments for submission in self.reddit.subreddit("all").search(self.sub, limit=self.lim) if (submission.url.find('imgur.com') != -1 or submission.url.find('reddit.com/gallery/') != -1) and submission.url.find('.gif') == -1 and submission.is_video is False}
+        self.raw_json = {submission.url: submission.num_comments for submission in
+                         self.reddit.subreddit("all").search(self.sub, limit=self.lim) if
+                         (submission.url.find('imgur.com') != -1 or submission.url.find('reddit.com/gallery/') != -1)
+                         and submission.url.find('.gif') == -1 and submission.is_video is False}
         self.sorted_json = sorted(self.raw_json.items(), key=lambda x: x[1])
 
         # check if color search is selected
@@ -84,7 +87,8 @@ class ProcessLinks:
 
                     # check if dominant color matches the input colors
                     self.result_col_tuple = self.get_color.get_dom_color(self.sorted_json[count][0])
-                    test = all(x - self.color_bound < y < x + self.color_bound for x, y in zip(self.result_col_tuple, self.given_col_tuple))
+                    test = all(x - self.color_bound < y < x + self.color_bound
+                               for x, y in zip(self.result_col_tuple, self.given_col_tuple))
                     if test:
                         result1 = {self.sorted_json[count][0]: self.sorted_json[count][1]}
                         self.sorted_result_list.append(result1)
@@ -95,7 +99,7 @@ class ProcessLinks:
                         # get the html
                         resp = self.session.get(self.sorted_json[count][0])
 
-                        # Run JavaScript code on web page
+                        # Run JavaScript code on web page to get the complete HTML tags
                         resp.html.render(retries=50, sleep=1)
 
                         # format the html properly
@@ -108,9 +112,10 @@ class ProcessLinks:
                             if self.url_max_len >= len(image_link) >= self.url_min_len:
                                 self.result_col_tuple = self.get_color.get_dom_color(image_link)
 
-                        test = all(x - self.color_bound < y < x + self.color_bound for x, y in zip(self.result_col_tuple, self.given_col_tuple))
+                        test = all(x - self.color_bound < y < x + self.color_bound
+                                   for x, y in zip(self.result_col_tuple, self.given_col_tuple))
                         if test:
-                            result2 = {self.sorted_json[count][0]: self.sorted_json[count][1]}  # or result = {image_link: sorted_json[count][1]} if you need the direct link
+                            result2 = {self.sorted_json[count][0]: self.sorted_json[count][1]}
                             self.sorted_result_list.append(result2)
 
                     except Exception as e:
@@ -131,7 +136,7 @@ class OutputLinks:
     def get_top_three(self, sorted_json):
         # iterate through the results and return the top3
         try:
-            for k in 'top':
+            for _ in 'top':
                 self.result_list.append(sorted_json[self.j])
                 self.j = self.j - 1
             return self.result_list
@@ -378,6 +383,7 @@ class UiMainWindow(object):
         # get R, G, B tuple
         try:
             color = tuple(map(int, self.lineEdit_2.text().split(', ')))
+            # check is RGB values given are between 0 and 255
             if len(color) == 3 and -1 < color[0] < 226 and -1 < color[1] < 226 and -1 < color[2] < 226:
                 print(color)  # 0 if not selected and 2 if selected
                 self.color_tuple = color
@@ -385,7 +391,7 @@ class UiMainWindow(object):
             else:
                 self.update_table("INVALID VALUE ENTERED", " ", " ")
 
-        except Exception:
+        except ValueError:
             pass
 
         # get state of checkBox
@@ -396,29 +402,23 @@ class UiMainWindow(object):
             self.is_color = False
 
         # get search term
-        try:
-            search_term = self.lineEdit.text()
-            if type(search_term) == str:
-                self.sub_text = search_term
+        search_term = self.lineEdit.text()
+        if isinstance(search_term, str):
+            self.sub_text = search_term
 
-        except Exception:
+        else:
             self.update_table("INVALID SEARCH TERM", "", "")
-            pass
 
-        # get search term
-        try:
-            search_number = int(self.lineEdit_3.text())
-            if search_number > 0:
-                self.post_num = search_number
+        # get search number
+        search_number = int(self.lineEdit_3.text())
+        if isinstance(search_number, int):
+            self.post_num = search_number
 
-            else:
-                self.update_table("INVALID NUMBER ENTERED!", "", "")
+        else:
+            self.update_table("INVALID NUMBER ENTERED!", "", "")
 
-        except Exception:
-            print("INVALID TERM")
-            pass
-
-        result = top_three.get_top_three(list_link.get_link(self.sub_text, self.post_num, 110, 120, self.is_color, self.color_tuple, 120))
+        result = top_three.get_top_three(list_link.get_link(self.sub_text, self.post_num,
+                                                            110, 120, self.is_color, self.color_tuple, 120))
 
         if result is not None:
             print(result)
