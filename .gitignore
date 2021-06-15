@@ -1,4 +1,5 @@
 .idea
+.pylintrc
 fast-colorthief
 __pycache__
 chromedriver.exe
