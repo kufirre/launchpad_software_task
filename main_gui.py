@@ -480,12 +480,6 @@ class UiMainWindow:
         self.table_widget.setItem(0, 1, QtWidgets.QTableWidgetItem(row1))
         self.table_widget.setItem(1, 1, QtWidgets.QTableWidgetItem(row2))
         self.table_widget.setItem(2, 1, QtWidgets.QTableWidgetItem(row3))
-        # item = self.table_widget.item(0, 1)
-        # item.setText(self._translate("MainWindow", row1))
-        # item = self.table_widget.item(1, 1)
-        # item.setText(self._translate("MainWindow", row2))
-        # item = self.table_widget.item(2, 1)
-        # item.setText(self._translate("MainWindow", row3))
         self.table_widget.setSortingEnabled(sorting_enabled)
 
 
