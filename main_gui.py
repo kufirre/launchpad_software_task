@@ -462,12 +462,9 @@ class UiMainWindow:
         result = get_top_three(get_link(self.sub_text, self.post_num,
                                         self.is_color, self.color_tuple, 120))
 
-        if result is not None:
+        if isinstance(result, (list, dict)):
             print(result)
-            try:
-                self.update_table(result[0][0], result[1][0], result[2][0])
-            except KeyError:
-                self.update_table(list(result[0])[0], list(result[1])[0], list(result[2])[0])
+            self.update_table(result[0][0], result[1][0], result[2][0])
 
         else:
             self.update_table("NO IMAGES FOUND... TRY INCREASING POST NUM.", " ", " ")
@@ -475,17 +472,20 @@ class UiMainWindow:
     def update_table(self, row1, row2, row3):
         """Update table in the main window
 
-        :param row1: first row of second column of table
-        :param row2: second row of second column of table
-        :param row3: third row of second column of table
+        :param str row1: first row of second column of table
+        :param str row2: second row of second column of table
+        :param str row3: third row of second column of table
         """
         sorting_enabled = self.table_widget.isSortingEnabled()
-        item = self.table_widget.item(0, 1)
-        item.setText(self._translate("MainWindow", row1))
-        item = self.table_widget.item(1, 1)
-        item.setText(self._translate("MainWindow", row2))
-        item = self.table_widget.item(2, 1)
-        item.setText(self._translate("MainWindow", row3))
+        self.table_widget.setItem(0, 1, QtWidgets.QTableWidgetItem(row1))
+        self.table_widget.setItem(1, 1, QtWidgets.QTableWidgetItem(row2))
+        self.table_widget.setItem(2, 1, QtWidgets.QTableWidgetItem(row3))
+        # item = self.table_widget.item(0, 1)
+        # item.setText(self._translate("MainWindow", row1))
+        # item = self.table_widget.item(1, 1)
+        # item.setText(self._translate("MainWindow", row2))
+        # item = self.table_widget.item(2, 1)
+        # item.setText(self._translate("MainWindow", row3))
         self.table_widget.setSortingEnabled(sorting_enabled)
 
 
